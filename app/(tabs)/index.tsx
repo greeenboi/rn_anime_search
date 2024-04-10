@@ -1,4 +1,4 @@
-import { StyleSheet, ToastAndroid } from 'react-native';
+import { Linking, StyleSheet, ToastAndroid } from 'react-native';
 import { Cloudinary } from '@cloudinary/url-gen';
 import { upload } from 'cloudinary-react-native'
 import { Text, View } from '@/components/Themed';
@@ -12,7 +12,7 @@ export default function TabOneScreen() {
   const [hasChosen, setHasChosen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [base64Image, setBase64Image] = useState<string | null>(null);
-  const [ url, setUrl ] = useState<string | null>(null);
+  // const [ url, setUrl ] = useState<string | null>(null);
 
   const cld = new Cloudinary({
     cloud: {
@@ -57,12 +57,29 @@ export default function TabOneScreen() {
       }
       if (!error && response) {
         console.log(response);
-        setUrl(response.url);
+        // setUrl(response.secure_url);
         ToastAndroid.showWithGravity(`Found URL`, ToastAndroid.SHORT, ToastAndroid.CENTER);
+        console.log(response.secure_url)
+        Image_Upload(response.secure_url);
       }      
     }})
     setLoading(false);
   }
+
+  async function Image_Upload({ url } : { url: string }) {
+    try {
+      const supported = await Linking.canOpenURL(`https://trace.moe/?url=${url}`);
+      if (supported) {
+        await Linking.openURL(`https://trace.moe/?url=${url}`);
+        ToastAndroid.showWithGravity(`Opening the URL`, ToastAndroid.SHORT, ToastAndroid.CENTER);
+      }
+    } catch (error) {
+      console.error(error);
+      ToastAndroid.showWithGravity(`Error Opening the URL`, ToastAndroid.SHORT, ToastAndroid.CENTER);
+    }
+  }
+
+  
   
 
 
